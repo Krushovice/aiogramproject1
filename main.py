@@ -1,16 +1,42 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import asyncio
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from aiogram import Bot, Dispatcher
+
+from api.routers import router as main_router
+from api.admin import router as admin_router
+from core.config import settings
+from utils import (
+    setup_logger,
+)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+async def main() -> None:
+    logger = setup_logger(__name__)
+    try:
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+        dp = Dispatcher()
+        bot = Bot(
+            token=settings.bot.token,
+            default=settings.bot.properties,
+        )
+        # Регистриуем роутеры в диспетчере
+        dp.include_routers(
+            main_router,
+            admin_router,
+        )
+
+        # Пропускаем накопившиеся апдейты и запускаем polling
+        await bot.delete_webhook(drop_pending_updates=True)
+        await bot.session.close()
+        # await create_tables()
+        # await check_users(bot)
+
+        await dp.start_polling(bot)
+
+    except Exception as e:
+        logger.error(f"Ошибка при запуске основного скрипта: {e}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
