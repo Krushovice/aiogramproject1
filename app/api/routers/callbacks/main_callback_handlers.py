@@ -1,4 +1,6 @@
+import requests
 from aiogram import Router, F
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 
@@ -6,9 +8,10 @@ from api.markups import (
     MenuCbData,
     MenuActions,
     build_account_kb,
+    build_main_kb,
 )
 
-from utils import LEXICON
+from utils import LEXICON, sync_helper, Token
 
 
 router = Router(name=__name__)
@@ -28,6 +31,17 @@ async def handle_profile_button(call: CallbackQuery):
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advice))
 async def handle_advice_button(call: CallbackQuery):
     await call.answer()
+    message = "Посоветуй книгу, исходя из моих любимых книг: 'Шантарам', 'Источник', '1984', 'Финансист', 'Братья Карамазовы'"
+    try:
+        token = sync_helper.create_token()
+        res = sync_helper.send_prompt(token=token, message=message)
+        await call.message.edit_caption(
+            caption=res,
+            reply_markup=build_main_kb(),
+        )
+
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при работе с гигачат апи {e}")
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.support))

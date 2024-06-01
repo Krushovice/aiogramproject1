@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     AI_ID: str
     AI_SECRET: str
+    AUTH: str
     DEBUG: bool
     ECHO: bool = False
 
@@ -21,12 +22,16 @@ class Settings(BaseSettings):
         return f"{self.BOT_TOKEN}"
 
     @property
-    def api_token(self) -> str:
+    def ai_id(self) -> str:
         return f"{self.AI_ID}"
 
     @property
     def ai_secret(self) -> str:
         return f"{self.AI_SECRET}"
+
+    @property
+    def auth(self) -> str:
+        return f"{self.AUTH}"
 
     model_config = SettingsConfigDict(env_file=".env")
 
