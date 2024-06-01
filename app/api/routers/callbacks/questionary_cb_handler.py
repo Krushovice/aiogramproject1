@@ -1,4 +1,4 @@
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
@@ -16,6 +16,7 @@ from utils import Form
 from utils import choice_items
 from utils import LEXICON
 
+image_path = "app/utils/images/books.jpg"
 
 router = Router(name=__name__)
 
@@ -74,8 +75,9 @@ async def form_genre(message: Message, state: FSMContext):
         await state.clear()
 
         print(data)  # Тут должна быть работа с БД
-        await message.answer(
-            LEXICON["success"],
+        await message.answer_photo(
+            photo=FSInputFile(path=image_path),
+            caption=LEXICON["success"],
             reply_markup=build_book_card_kb(),
         )
 
