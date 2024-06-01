@@ -11,7 +11,7 @@ from api.markups import (
     build_main_kb,
 )
 
-from utils import LEXICON, sync_helper, Token
+from utils import LEXICON, ai_helper
 
 
 router = Router(name=__name__)
@@ -31,10 +31,10 @@ async def handle_profile_button(call: CallbackQuery):
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advice))
 async def handle_advice_button(call: CallbackQuery):
     await call.answer()
-    message = "Посоветуй книгу, исходя из моих любимых книг: 'Шантарам', 'Источник', '1984', 'Финансист', 'Братья Карамазовы'"
+    message = ""
     try:
-        token = sync_helper.create_token()
-        res = sync_helper.send_prompt(token=token, message=message)
+        token = ai_helper.create_token()
+        res = ai_helper.send_prompt(token=token, message=message)
         await call.message.edit_caption(
             caption=res,
             reply_markup=build_main_kb(),
