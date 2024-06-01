@@ -139,7 +139,7 @@ class SyncHelper:
         )
 
         res.raise_for_status()  # Вызывает исключение для статусов ошибок
-        return res.json()["choices"][0]["message"]["content"]
+        return res.json()["choices"][0]["message"]["content"][:1024]
 
 
 sync_helper = SyncHelper()
