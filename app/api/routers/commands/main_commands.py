@@ -3,6 +3,8 @@ from aiogram.utils import markdown
 from aiogram.types import Message
 from aiogram import Router
 
+from api.markups import build_main_kb
+from utils import LEXICON
 
 router = Router()
 
@@ -18,11 +20,11 @@ async def command_start_handler(message: Message):
     #                                  username=message.from_user.username)
 
     await message.answer(
-        text=markdown.hbold(LEXICON_RU["/start"]),
-        reply_markup=yes_no_kb,
+        text=markdown.hbold(LEXICON["/start"]),
+        reply_markup=build_main_kb(),
     )
 
 
 @router.message(Command("help"))
 async def command_help_handler(message: Message):
-    await message.answer(text=LEXICON_RU["/help"])
+    await message.answer(text=LEXICON["/help"])
