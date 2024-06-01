@@ -4,15 +4,11 @@ import asyncio
 from aiogram import Bot, Dispatcher
 
 from api.routers import router as main_router
-from api.admin import router as admin_router
 from core.config import settings
-from utils import (
-    setup_logger,
-)
 
 
 async def main() -> None:
-    logger = setup_logger(__name__)
+    # logger = setup_logger(__name__)
     try:
 
         dp = Dispatcher()
@@ -23,7 +19,6 @@ async def main() -> None:
         # Регистриуем роутеры в диспетчере
         dp.include_routers(
             main_router,
-            admin_router,
         )
 
         # Пропускаем накопившиеся апдейты и запускаем polling
@@ -35,7 +30,7 @@ async def main() -> None:
         await dp.start_polling(bot)
 
     except Exception as e:
-        logger.error(f"Ошибка при запуске основного скрипта: {e}")
+        print(f"Ошибка при запуске основного скрипта: {e}")
 
 
 if __name__ == "__main__":
