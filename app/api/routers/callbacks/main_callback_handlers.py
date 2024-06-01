@@ -12,3 +12,8 @@ from utils import LEXICON
 
 
 router = Router(name=__name__)
+
+
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.profile))
+async def handle_account_button(call: CallbackQuery):
+    await call.answer()
