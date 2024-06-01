@@ -6,6 +6,7 @@ python = "^3.12"
 aiogram = "^3.6.0"
 pydantic-settings = "^2.2.1"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
+aiosqlite = "^0.20.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
