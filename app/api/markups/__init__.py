@@ -6,6 +6,7 @@ __all__ = (
     "ProfileCbData",
     "build_book_card_kb",
     "build_account_kb",
+    "register_profile",
     "root_kb",
 )
 
@@ -22,4 +23,5 @@ from .account_kb import (
     build_account_kb,
     build_book_card_kb,
     root_kb,
+    register_profile,
 )

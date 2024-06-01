@@ -3,7 +3,7 @@ from enum import IntEnum, auto
 
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 
 class ProfileActions(IntEnum):
@@ -76,3 +76,17 @@ def root_kb() -> InlineKeyboardMarkup:
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def register_profile(text: str | list):
+    builder = ReplyKeyboardBuilder()
+    if isinstance(text, str):
+        text = [text]
+
+        [builder.button(text=txt) for txt in text]
+        return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+
+    elif isinstance(text, list):
+        text = text
+        [builder.button(text=txt) for txt in text]
+        return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

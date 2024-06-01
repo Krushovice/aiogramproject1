@@ -1,0 +1,83 @@
+from aiogram.types import Message
+from aiogram import Router, F
+from aiogram.types import CallbackQuery
+
+
+from aiogram.fsm.context import FSMContext
+
+
+from api.markups import (
+    ProfileActions,
+    ProfileCbData,
+    build_book_card_kb,
+    register_profile,
+)
+from utils import Form
+from utils import choice_items
+from utils import LEXICON
+
+
+router = Router(name=__name__)
+
+
+@router.callback_query(
+    ProfileCbData.filter(
+        F.action == ProfileActions.register,
+    )
+)
+async def register_user_handler(
+    call: CallbackQuery,
+    state: FSMContext,
+):
+    await call.answer()
+    await call.message.answer(text=LEXICON["/register"])
+    await state.set_state(Form.username)
+    await call.message.answer(
+        text=LEXICON["ask_username"],
+        reply_markup=register_profile(call.from_user.username),
+    )
+
+
+@router.message(Form.username)
+async def form_username(message: Message, state: FSMContext):
+    await state.update_data(username=message.text)
+    await state.set_state(Form.books)
+    await message.answer(
+        LEXICON["ask_books"],
+        reply_markup=register_profile(
+            choice_items(LEXICON["books"]),
+        ),
+    )
+
+
+@router.message(Form.books)
+async def form_books(message: Message, state: FSMContext):
+    books = list(message.text)
+    if len(books) > 1:
+        await state.update_data(books=message.text.split(", "))
+        await state.set_state(Form.genre)
+        await message.answer(
+            LEXICON["ask_genre"],
+            reply_markup=register_profile(
+                choice_items(LEXICON["genres"]),
+            ),
+        )
+    else:
+        await message.answer(LEXICON["not_list"])
+
+
+@router.message(Form.genre)
+async def form_genre(message: Message, state: FSMContext):
+    if message.text.isalpha():
+        await state.update_data(genre=message.text)
+        data = await state.get_data()
+        await state.clear()
+
+        print(data)  # Тут должна быть работа с БД
+        await message.answer(
+            LEXICON["success"],
+            reply_markup=build_book_card_kb(),
+        )
+
+    else:
+        await message.answer("Введите пожалуйста любимый жанр")
