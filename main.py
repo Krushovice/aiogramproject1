@@ -2,6 +2,8 @@ import asyncio
 
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from api.routers import router as main_router
 from core.config import settings
@@ -13,8 +15,8 @@ async def main() -> None:
 
         dp = Dispatcher()
         bot = Bot(
-            token=settings.bot.token,
-            default=settings.bot.properties,
+            token=settings.bot_token,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         )
         # Регистриуем роутеры в диспетчере
         dp.include_routers(
