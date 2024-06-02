@@ -4,7 +4,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram import Router
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.crud.crud import AsyncOrm
+from api.crud import AsyncOrm
 from api.markups import build_main_kb
 
 from utils import LEXICON
