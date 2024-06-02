@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 
 from api.routers import router as main_router
 from core.config import settings
-from core import Base, db_helper
+from core import Base, db_helper, DataBaseSession
 
 
 async def create_tables():
@@ -29,7 +29,7 @@ async def main() -> None:
         dp.include_routers(
             main_router,
         )
-
+        dp.update.middleware(DataBaseSession(session=db_helper.session_factory))
         # Пропускаем накопившиеся апдейты и запускаем polling
         await bot.delete_webhook(drop_pending_updates=True)
         await bot.session.close()

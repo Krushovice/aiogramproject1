@@ -9,7 +9,7 @@ from api.markups import (
     build_account_kb,
     build_main_kb,
 )
-
+from core import DataBaseSession, db_helper
 from api.crud import AsyncOrm
 from utils import LEXICON, ai_helper
 
@@ -20,15 +20,21 @@ router = Router(name=__name__)
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.profile))
 async def handle_profile_button(call: CallbackQuery, session: AsyncSession):
     await call.answer()
-    user = await AsyncOrm.get_user_by_tg_id(
-        session=session, tg_id=call.message.from_user.id
+    user = await AsyncOrm.get_user(
+        session=session,
+        tg_id=call.from_user.id,
     )
+    if user:
+        print(user.books)
+    else:
+
+        print("Упс")
     # Выводим карточку читателя
     text = (
-        "Карточка читателя 🪪\n\n"
-        f"Никнейм: {user.username if user.username else user.full_name}"
-        f"Прочитано : {len(user.books)}"
-        f"Любимый жанр: "
+        "<b>Карточка читателя</b> 🪪\n\n"
+        f"Никнейм: {user.username if user.username else user.full_name}\n"
+        f"Прочитано : {123}\n"
+        f"Любимый жанр: \n"
         f"Любимая книга: "
     )
     await call.message.edit_caption(

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
 
@@ -27,16 +27,13 @@ class AsyncOrm:
         await session.commit()
 
     @staticmethod
-    async def get_user_by_tg_id(session: AsyncSession, tg_id: int) -> User | None:
-        u = aliased(User)
+    async def get_user(session: AsyncSession, tg_id: int) -> User | None:
 
-        query = select(u.full_name).select_from(u).filter(u.tg_id == tg_id)
-        print(query.compile(compile_kwargs={"literal_binds": True}))
-        res = await session.scalar(query)
-        if res:
-            result = res.one()
-            return result
-        return None
+        stmt = select(User).filter(User.tg_id == tg_id)
+        print(stmt.compile(compile_kwargs={"literal_binds": True}))
+        res: Result = await session.execute(stmt)
+        user: User = res.scalar_one_or_none()
+        return user
 
     # @staticmethod
     # async def select_reader_by_username(username):

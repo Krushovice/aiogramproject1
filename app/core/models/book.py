@@ -13,16 +13,19 @@ class Book(Base):
     rating: Mapped[float] = mapped_column(Float, nullable=True)
     genre: Mapped[str] = mapped_column(String(50), nullable=True)
     author: Mapped[str] = mapped_column(String(150), nullable=False)
+
     readers = relationship(
         "User",
         secondary=user_books_table,
         back_populates="books",
+        lazy="selectin",
     )
 
     wishers = relationship(
         "User",
         secondary=user_wishlist_table,
         back_populates="wish_list",
+        lazy="selectin",
     )
 
     def __str__(self):

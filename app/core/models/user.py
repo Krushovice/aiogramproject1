@@ -20,16 +20,18 @@ class User(Base):
         "Book",
         secondary=user_books_table,
         back_populates="readers",
+        lazy="selectin",
     )
 
     wish_list = relationship(
         "Book",
         secondary=user_wishlist_table,
         back_populates="wishers",
+        lazy="selectin",
     )
 
     def __str__(self):
-        return f"{self.__class__.__name__}(User(id={self.id!r}, first_name={self.full_name!r})"
+        return f"User(id={self.id!r}, full_name={self.full_name!r})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)

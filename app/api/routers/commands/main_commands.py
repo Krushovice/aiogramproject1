@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.crud import AsyncOrm
 from api.markups import build_main_kb
+from core import DataBaseSession, db_helper
 
 from utils import LEXICON
 
 router = Router()
+# router.message.middleware(DataBaseSession(session=db_helper.session_factory))
 
 image_path = "app/utils/images/books.jpg"
 
@@ -21,7 +23,7 @@ async def command_start_handler(
 ):
 
     tg_id = message.from_user.id
-    user = await AsyncOrm.get_user_by_tg_id(
+    user = await AsyncOrm.get_user(
         tg_id=tg_id,
         session=session,
     )
