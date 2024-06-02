@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
 )
 
-
 from core.config import settings
 
 
