@@ -21,7 +21,7 @@ class UserUpdatePartial(UserCreate):
     username: str | None = None
 
 
-class User(UserBase):
+class UserRead(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

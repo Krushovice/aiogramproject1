@@ -4,16 +4,15 @@ from sqlalchemy.orm import aliased, selectinload
 
 from typing import Sequence
 
+from core import db_helper
 from core.models import User, Book, Author
 
 
 class AsyncOrm:
 
-    def __init__(self, session: AsyncSession) -> None:
-        self.session = session
-
+    @staticmethod
     async def create_user(
-        self,
+        session: AsyncSession,
         tg_id: int,
         username: str,
         full_name: str,
@@ -24,15 +23,16 @@ class AsyncOrm:
             username=username,
             full_name=full_name,
         )
-        self.session.add(user)
-        await self.session.commit()
+        session.add(user)
+        await session.commit()
 
-    async def get_user_by_tg_id(self, tg_id: int) -> User | None:
+    @staticmethod
+    async def get_user_by_tg_id(session: AsyncSession, tg_id: int) -> User | None:
         u = aliased(User)
 
         query = select(u.full_name).select_from(u).filter(u.tg_id == tg_id)
         print(query.compile(compile_kwargs={"literal_binds": True}))
-        res = await self.session.scalar(query)
+        res = await session.scalar(query)
         if res:
             result = res.one()
             return result

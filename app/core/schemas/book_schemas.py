@@ -21,7 +21,7 @@ class BookUpdatePartial(BookCreate):
     genre: str | None = None
 
 
-class Book(BookBase):
+class BookRead(BookBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

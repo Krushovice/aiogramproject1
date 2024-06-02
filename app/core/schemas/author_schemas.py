@@ -17,7 +17,7 @@ class AuthorUpdatePartial(AuthorCreate):
     full_name: str | None = None
 
 
-class Author(AuthorBase):
+class AuthorRead(AuthorBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
