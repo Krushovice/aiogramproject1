@@ -4,19 +4,16 @@ __all__ = (
     "Base",
     "User",
     "Book",
-    "Author",
     "UserRead",
     "BookRead",
-    "AuthorRead",
     "UserUpdatePartial",
     "BookUpdatePartial",
-    "AuthorUpdatePartial",
     "DataBaseSession",
 )
 
 from .config import settings
 from .models.db_helper import db_helper
-from .models import User, Book, Author, Base
+from .models import User, Book, Base
 from .middlewares.session_middleware import DataBaseSession
 
 from .schemas.user_schemas import (
@@ -26,8 +23,4 @@ from .schemas.user_schemas import (
 from .schemas.book_schemas import (
     BookRead,
     BookUpdatePartial,
-)
-from .schemas.author_schemas import (
-    AuthorRead,
-    AuthorUpdatePartial,
 )

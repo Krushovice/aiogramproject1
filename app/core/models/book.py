@@ -1,36 +1,32 @@
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import Text, String, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import TYPE_CHECKING
 
-from .base import Base
 
-if TYPE_CHECKING:
-    from .user import User
-    from .author import Author
+from .base import Base, user_books_table, user_wishlist_table
 
 
 class Book(Base):
     __tablename__ = "books"
 
-    name: Mapped[str]
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    rating: Mapped[float] = mapped_column(nullable=True)
-    genre: Mapped[str] = mapped_column(nullable=True)
-    author_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"))
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-    )
-
-    user: Mapped["User"] = relationship(
+    title: Mapped[str] = mapped_column(String(100))
+    description: Mapped[str] = mapped_column(Text(), nullable=True)
+    rating: Mapped[float] = mapped_column(Float, nullable=True)
+    genre: Mapped[str] = mapped_column(String(50), nullable=True)
+    author: Mapped[str] = mapped_column(String(150), nullable=False)
+    readers = relationship(
+        "User",
+        secondary=user_books_table,
         back_populates="books",
     )
 
-    author: Mapped["Author"] = relationship(
-        back_populates="books",
+    wishers = relationship(
+        "User",
+        secondary=user_wishlist_table,
+        back_populates="wish_list",
     )
 
     def __str__(self):
-        return f"{self.__class__.__name__}(name={self.name!r}, author={self.author!r})"
+        return f"{self.__class__.__name__}(name={self.title!r}, author={self.author!r})"
 
     def __repr__(self):
         return str(self)
