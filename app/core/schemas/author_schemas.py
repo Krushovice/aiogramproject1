@@ -2,8 +2,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class AuthorBase(BaseModel):
-    first_name: str
-    last_name: str
+    full_name: str
 
 
 class AuthorCreate(AuthorBase):
@@ -15,8 +14,7 @@ class AuthorUpdate(AuthorCreate):
 
 
 class AuthorUpdatePartial(AuthorCreate):
-    first_name: str | None = None
-    last_name: str | None = None
+    full_name: str | None = None
 
 
 class Author(AuthorBase):

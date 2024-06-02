@@ -2,10 +2,9 @@ from pydantic import BaseModel, ConfigDict
 
 
 class UserBase(BaseModel):
-    username: str
-    first_name: str
-    last_name: str
     tg_id: int
+    full_name: str
+    username: str
 
 
 class UserCreate(UserBase):
@@ -17,10 +16,9 @@ class UserUpdate(UserCreate):
 
 
 class UserUpdatePartial(UserCreate):
-    usernname: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
     tg_id: int | None = None
+    full_name: str | None = None
+    username: str | None = None
 
 
 class User(UserBase):
