@@ -20,14 +20,12 @@ class User(Base):
         "Book",
         secondary=user_books_table,
         back_populates="readers",
-        cascade="all, delete-orphan",
     )
 
     wish_list = relationship(
         "Book",
         secondary=user_wishlist_table,
         back_populates="wishers",
-        cascade="all, delete-orphan",
     )
 
     def __str__(self):

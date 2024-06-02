@@ -5,7 +5,7 @@ from sqlalchemy.orm import aliased, selectinload
 from typing import Sequence
 
 from core import db_helper
-from core.models import User, Book, Author
+from core.models import User, Book
 
 
 class AsyncOrm:
