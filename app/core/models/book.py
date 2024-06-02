@@ -1,24 +1,27 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
 
 from .base import Base
-from .user import User
-from .author import Author
+
+if TYPE_CHECKING:
+    from .user import User
+    from .author import Author
 
 
 class Book(Base):
     __tablename__ = "books"
 
     name: Mapped[str]
-    description: Mapped[str] = mapped_column(nullable=True)
-    rating: Mapped[int] = mapped_column(nullable=True)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    rating: Mapped[float] = mapped_column(nullable=True)
     genre: Mapped[str] = mapped_column(nullable=True)
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"))
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
     )
 
-    reader: Mapped["User"] = relationship(
+    user: Mapped["User"] = relationship(
         back_populates="books",
     )
 

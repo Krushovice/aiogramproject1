@@ -1,15 +1,20 @@
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, relationship, mapped_column
+
+from typing import TYPE_CHECKING
 
 from .base import Base
-from .book import Book
+
+if TYPE_CHECKING:
+    from .book import Book
 
 
 class Author(Base):
     __tablename__ = "authors"
 
-    full_name: Mapped[str]
+    full_name: Mapped[str] = mapped_column(String(150))
     books: Mapped[list["Book"]] = relationship(
-        back_populates="user",
+        back_populates="author",
         cascade="all, delete-orphan",
     )
 
