@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     def auth(self) -> str:
         return f"{self.AUTH}"
 
+    @property
+    def db_echo(self) -> bool:
+        return self.ECHO
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
