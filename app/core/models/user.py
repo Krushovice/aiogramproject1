@@ -1,8 +1,11 @@
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import BigInteger, String
+from typing import TYPE_CHECKING
 
+from .base import Base, user_wishlist_table
 
-from .base import Base, user_books_table, user_wishlist_table
+if TYPE_CHECKING:
+    from .book import Book, UserBookRating
 
 
 class User(Base):
@@ -16,15 +19,12 @@ class User(Base):
         default=str(tg_id),
     )
 
-    books = relationship(
-        "Book",
-        secondary=user_books_table,
-        back_populates="readers",
+    # Прочитанные книги с рейтингами
+    books: Mapped["UserBookRating"] = relationship(
+        back_populates="user",
         lazy="selectin",
     )
-
-    wish_list = relationship(
-        "Book",
+    wish_list: Mapped["Book"] = relationship(
         secondary=user_wishlist_table,
         back_populates="wishers",
         lazy="selectin",
