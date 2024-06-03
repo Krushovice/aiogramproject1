@@ -4,6 +4,7 @@ __all__ = (
     "Base",
     "User",
     "Book",
+    "UserBookRating",
     "UserRead",
     "BookRead",
     "UserUpdatePartial",
@@ -13,7 +14,7 @@ __all__ = (
 
 from .config import settings
 from .models.db_helper import db_helper
-from .models import User, Book, Base
+from .models import User, Book, Base, UserBookRating
 from .middlewares.session_middleware import DataBaseSession
 
 from .schemas.user_schemas import (

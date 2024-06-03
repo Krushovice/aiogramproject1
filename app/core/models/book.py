@@ -21,8 +21,6 @@ class Book(Base):
     genre: Mapped[str] = mapped_column(String(50), nullable=True)
     description: Mapped[str] = mapped_column(Text(), nullable=True)
 
-    # Читатели книги с их рейтингами
-
     readers: Mapped[List["User"]] = relationship(
         secondary=user_books_table,
         back_populates="users",
@@ -41,29 +39,25 @@ class Book(Base):
         return str(self)
 
 
-class Rating(Base):
-    __tablename__ = "book_ratings"
+class UserBookRating(Base):
+    __tablename__ = "user_book_ratings"
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        )
     )
     book_id: Mapped[int] = mapped_column(
-        ForeignKey("books.id", ondelete="CASCADE"),
+        ForeignKey(
+            "books.id",
+            ondelete="CASCADE",
+        )
     )
     rating: Mapped[float] = mapped_column(Float, nullable=True)
-    read_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=True,
-        onupdate=datetime.datetime.now(datetime.UTC),
-    )
-    user: Mapped["User"] = relationship(
-        back_populates="books",
-        lazy="selectin",
-    )
-    book: Mapped["Book"] = relationship(
-        back_populates="readers",
-        lazy="selectin",
-    )
+
+    user = relationship("User", back_populates="book_ratings")
+    book = relationship("Book", back_populates="user_ratings")
 
     def __str__(self):
 
