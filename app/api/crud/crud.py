@@ -4,7 +4,7 @@ from sqlalchemy.orm import aliased, selectinload
 
 from typing import Sequence
 
-from core import db_helper
+from core import db_helper, UserBookRating
 from core.models import User, Book
 
 
@@ -115,3 +115,14 @@ class AsyncOrm:
     #         book_names = [book.name for book in result]
     #         print(book_names)
     #         return book_names
+    @staticmethod
+    async def get_average_rating(session, book_id):
+
+        stmt = select(UserBookRating.rating).filter(UserBookRating.book_id == book_id)
+        res: Result = await session.execute(stmt)
+        ratings = res.scalars().all()
+        # Вычисляем средний рейтинг
+        total_rating = sum(r for r in ratings)
+        average_rating = total_rating / len(ratings) if ratings else 0
+
+        return average_rating
