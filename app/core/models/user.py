@@ -2,7 +2,8 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import BigInteger, String
 from typing import TYPE_CHECKING, List
 
-from .base import Base, user_wishlist_table
+from .base import Base
+from .association_tables import user_wishlist_table, user_books_table
 
 if TYPE_CHECKING:
     from .book import Book, Rating
@@ -21,6 +22,7 @@ class User(Base):
 
     # Прочитанные книги с рейтингами
     books: Mapped[List["Book"]] = relationship(
+        secondary=user_books_table,
         back_populates="user",
         lazy="selectin",
     )

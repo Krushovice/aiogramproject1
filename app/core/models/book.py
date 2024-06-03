@@ -1,11 +1,13 @@
 import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING, List
 
 from sqlalchemy import Text, String, Float, ForeignKey, text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
-from .base import Base, user_wishlist_table
+from .base import Base
+
+from .association_tables import user_books_table, user_wishlist_table
 
 if TYPE_CHECKING:
     from .user import User
@@ -20,15 +22,15 @@ class Book(Base):
     description: Mapped[str] = mapped_column(Text(), nullable=True)
 
     # Читатели книги с их рейтингами
-    readers: Mapped["Rating"] = relationship(
-        back_populates="book",
+
+    readers: Mapped[List["User"]] = relationship(
+        secondary=user_books_table,
+        back_populates="users",
         lazy="selectin",
     )
-
-    wishers: Mapped["User"] = relationship(
-        "User",
+    wishers: Mapped[List["User"]] = relationship(
         secondary=user_wishlist_table,
-        back_populates="wish_list",
+        back_populates="users",
         lazy="selectin",
     )
 
