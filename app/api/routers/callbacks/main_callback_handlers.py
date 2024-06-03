@@ -11,8 +11,7 @@ from api.markups import (
 )
 from core import DataBaseSession, db_helper
 from api.crud import AsyncOrm
-from utils import LEXICON, ai_helper
-
+from utils import LEXICON, ai_helper, get_most_common_genre
 
 router = Router(name=__name__)
 
@@ -24,17 +23,20 @@ async def handle_profile_button(call: CallbackQuery, session: AsyncSession):
         session=session,
         tg_id=call.from_user.id,
     )
-    if user:
-        print(user.books)
-    else:
+    if user.books_ratings:
 
+        count_books = len(user.books)
+        favorite_genre = get_most_common_genre(user.books)
+    else:
+        count_books = 0
+        favorite_genre = ""
         print("Упс")
     # Выводим карточку читателя
     text = (
         "<b>Карточка читателя</b> 🪪\n\n"
         f"Никнейм: {user.username if user.username else user.full_name}\n"
-        f"Прочитано : {123}\n"
-        f"Любимый жанр: \n"
+        f"Прочитано : {count_books}\n"
+        f"Любимый жанр: {favorite_genre}\n"
         f"Любимая книга: "
     )
     await call.message.edit_caption(

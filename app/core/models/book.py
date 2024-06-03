@@ -20,8 +20,7 @@ class Book(Base):
     description: Mapped[str] = mapped_column(Text(), nullable=True)
 
     # Читатели книги с их рейтингами
-    readers: Mapped["Book"] = relationship(
-        "UserBookRating",
+    readers: Mapped["Rating"] = relationship(
         back_populates="book",
         lazy="selectin",
     )
@@ -40,8 +39,8 @@ class Book(Base):
         return str(self)
 
 
-class UserBookRating(Base):
-    __tablename__ = "user_book_ratings"
+class Rating(Base):
+    __tablename__ = "book_ratings"
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),

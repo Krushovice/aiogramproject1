@@ -1,11 +1,11 @@
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import BigInteger, String
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from .base import Base, user_wishlist_table
 
 if TYPE_CHECKING:
-    from .book import Book, UserBookRating
+    from .book import Book, Rating
 
 
 class User(Base):
@@ -20,11 +20,11 @@ class User(Base):
     )
 
     # Прочитанные книги с рейтингами
-    books: Mapped["UserBookRating"] = relationship(
+    books: Mapped[List["Book"]] = relationship(
         back_populates="user",
         lazy="selectin",
     )
-    wish_list: Mapped["Book"] = relationship(
+    wish_list: Mapped[List["Book"]] = relationship(
         secondary=user_wishlist_table,
         back_populates="wishers",
         lazy="selectin",

@@ -4,6 +4,7 @@ import os
 
 
 def setup_logger(module_name):
+
     logger = logging.getLogger(module_name)
     logger.setLevel(logging.ERROR)
     filename = os.path.splitext(os.path.basename(module_name))[0]
