@@ -32,6 +32,12 @@ class Book(Base):
         lazy="selectin",
     )
 
+    book_ratings: Mapped[List["BookRating"]] = relationship(
+        back_populates="book",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     def __str__(self):
         return f"Book(title={self.title!r}, author={self.author!r})"
 
@@ -39,25 +45,19 @@ class Book(Base):
         return str(self)
 
 
-class UserBookRating(Base):
-    __tablename__ = "user_book_ratings"
+class BookRating(Base):
+    __tablename__ = "book_ratings"
 
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            "users.id",
-            ondelete="CASCADE",
-        )
-    )
+    rating: Mapped[float] = mapped_column(Float, nullable=False)
+
     book_id: Mapped[int] = mapped_column(
         ForeignKey(
             "books.id",
             ondelete="CASCADE",
         )
     )
-    rating: Mapped[float] = mapped_column(Float, nullable=True)
 
-    user = relationship("User", back_populates="book_ratings")
-    book = relationship("Book", back_populates="user_ratings")
+    book: Mapped["Book"] = relationship(back_populates="book_ratings")
 
     def __str__(self):
 

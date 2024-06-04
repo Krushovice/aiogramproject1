@@ -6,7 +6,7 @@ from .base import Base
 from .association_tables import user_wishlist_table, user_books_table
 
 if TYPE_CHECKING:
-    from .book import Book, Rating
+    from .book import Book
 
 
 class User(Base):
@@ -20,7 +20,6 @@ class User(Base):
         default=str(tg_id),
     )
 
-    # Прочитанные книги с рейтингами
     books: Mapped[List["Book"]] = relationship(
         secondary=user_books_table,
         back_populates="user",
