@@ -19,16 +19,15 @@ class User(Base):
         unique=True,
         default=str(tg_id),
     )
+    favourite_genres: Mapped[List[str]] = mapped_column(String(25), nullable=True)
 
     books: Mapped[List["Book"]] = relationship(
         secondary=user_books_table,
-        back_populates="user",
-        lazy="selectin",
+        back_populates="readers",
     )
     wish_list: Mapped[List["Book"]] = relationship(
         secondary=user_wishlist_table,
         back_populates="wishers",
-        lazy="selectin",
     )
 
     def __str__(self):

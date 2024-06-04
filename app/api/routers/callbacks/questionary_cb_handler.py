@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 
 from aiogram.fsm.context import FSMContext
 
+from api.crud import AsyncOrm
 
 from api.markups import (
     ProfileActions,
@@ -56,7 +57,7 @@ async def form_books(message: Message, state: FSMContext):
     books = list(message.text)
     if len(books) > 1:
         await state.update_data(books=message.text.split(", "))
-        await state.set_state(Form.genre)
+        await state.set_state(Form.genres)
         await message.answer(
             LEXICON["ask_genre"],
             reply_markup=register_profile(
@@ -67,19 +68,26 @@ async def form_books(message: Message, state: FSMContext):
         await message.answer(LEXICON["not_list"])
 
 
-@router.message(Form.genre)
-async def form_genre(message: Message, state: FSMContext):
-    if message.text.isalpha():
-        await state.update_data(genre=message.text)
-        data = await state.get_data()
-        await state.clear()
+@router.message(Form.genres)
+async def form_genre(message: Message, state: FSMContext, session):
 
-        print(data)  # Тут должна быть работа с БД
-        await message.answer_photo(
-            photo=FSInputFile(path=image_path),
-            caption=LEXICON["success"],
-            reply_markup=build_book_card_kb(),
-        )
-
+    await state.update_data(genres=message.text.split(", "))
+    data = await state.get_data()
+    await state.clear()
+    if not message.from_user.username:
+        username = data["username"]
     else:
-        await message.answer("Введите пожалуйста любимый жанр")
+        username = message.from_user.username
+    await AsyncOrm.update_user(
+        session=session,
+        tg_id=message.from_user.id,
+        username=username,
+        books=data["books"],
+        favourite_genres=data["genres"],
+    )
+
+    await message.answer_photo(
+        photo=FSInputFile(path=image_path),
+        caption=LEXICON["success"],
+        reply_markup=build_book_card_kb(),
+    )

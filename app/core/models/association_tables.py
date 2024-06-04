@@ -6,7 +6,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 
-from core import Base
+from .base import Base
 
 
 # Промежуточная таблица для прочитанных книг

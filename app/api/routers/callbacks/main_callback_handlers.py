@@ -23,14 +23,14 @@ async def handle_profile_button(call: CallbackQuery, session: AsyncSession):
         session=session,
         tg_id=call.from_user.id,
     )
-    if user.books_ratings:
-
-        count_books = len(user.books)
-        favorite_genre = get_most_common_genre(user.books)
-    else:
-        count_books = 0
-        favorite_genre = ""
-        print("Упс")
+    # if user.books:
+    #
+    #     count_books = len(user.books)
+    #     favorite_genre = get_most_common_genre(user.books)
+    # else:
+    count_books = 0
+    favorite_genre = ""
+    print("Упс")
     # Выводим карточку читателя
     text = (
         "<b>Карточка читателя</b> 🪪\n\n"

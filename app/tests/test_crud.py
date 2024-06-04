@@ -12,19 +12,50 @@ async def create_tables():
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def main(session: AsyncSession = db_helper.session_getter()) -> User:
+async def main():
     # await create_tables()
-    await AsyncOrm.create_user(
-        session=session,
-        tg_id=1234567,
-        username="Franky",
-        full_name="Frank Ocean",
-    )
+    # await AsyncOrm.create_user(
+    #     session=session,
+    #     tg_id=1234567,
+    #     username="Franky",
+    #     full_name="Frank Ocean",
+    # )
+    # await AsyncOrm.create_book(
+    #     session=session,
+    #     title="Червоточина",
+    #     author="Боб",
+    #     genre="Ужасы",
+    # )
+    #
+    # await AsyncOrm.create_book(
+    #     session=session,
+    #     title="Улыбка",
+    #     author="Мона Лиза",
+    #     genre="Рассказ",
+    # )
+    #
+    # await AsyncOrm.create_book(
+    #     session=session,
+    #     title="Оно",
+    #     author="Стивен Кинг",
+    #     genre="Триллер",
+    # )
+    async with db_helper.session_factory() as session:
+        # book = await AsyncOrm.create_book(
+        #     session=session,
+        #     title="Красный нос",
+        #     author="Чехов А.П",
+        #     description="О том, как нос соседей копам сдавал.",
+        #     genre="Рассказ",
+        # )
+        user = await AsyncOrm.get_user(session=session, tg_id=1234567)
 
-    user = await AsyncOrm.get_user_by_tg_id(session=session, tg_id=1234567)
-
-    print(user)
-    return user
+        # books = await AsyncOrm.select_books(session=session)
+        # for book in books:
+        #     if book.title == "Оно":
+        #         await AsyncOrm.update_user(
+        #             session=session, tg_id=user.tg_id, books=[book]
+        #         )
 
 
 if __name__ == "__main__":

@@ -23,19 +23,16 @@ class Book(Base):
 
     readers: Mapped[List["User"]] = relationship(
         secondary=user_books_table,
-        back_populates="users",
-        lazy="selectin",
+        back_populates="books",
     )
     wishers: Mapped[List["User"]] = relationship(
         secondary=user_wishlist_table,
-        back_populates="users",
-        lazy="selectin",
+        back_populates="wish_list",
     )
 
     book_ratings: Mapped[List["BookRating"]] = relationship(
         back_populates="book",
         cascade="all, delete-orphan",
-        lazy="selectin",
     )
 
     def __str__(self):

@@ -1,4 +1,3 @@
-from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,

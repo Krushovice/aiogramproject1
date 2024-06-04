@@ -4,8 +4,7 @@ from sqlalchemy.orm import aliased, selectinload
 
 from typing import Sequence
 
-from core import db_helper, UserBookRating
-from core.models import User, Book
+from core.models import User, Book, BookRating
 
 
 class AsyncOrm:
@@ -29,35 +28,53 @@ class AsyncOrm:
     @staticmethod
     async def get_user(session: AsyncSession, tg_id: int) -> User | None:
 
-        stmt = select(User).filter(User.tg_id == tg_id)
-        print(stmt.compile(compile_kwargs={"literal_binds": True}))
+        stmt = (
+            select(User).filter(User.tg_id == tg_id).options(selectinload(User.books))
+        )
         res: Result = await session.execute(stmt)
         user: User = res.scalar_one_or_none()
         return user
 
-    # @staticmethod
-    # async def select_reader_by_username(username):
-    #     r = aliased(Reader)
-    #     async with async_session_factory() as session:
-    #         query = select(r.id).select_from(r).filter(r.username == username)
-    #         print(query.compile(compile_kwargs={"literal_binds": True}))
-    #         res = await session.execute(query)
-    #         print(res)
-    #         if res:
-    #             result = res.one()
-    #             return result[0]
-    #         return None
-    #
-    # @staticmethod
-    # async def select_readers_by_selectin():
-    #     async with async_session_factory() as session:
-    #         query = select(Reader).options(selectinload(Reader.books))
-    #         print(query.compile(compile_kwargs={"literal_binds": True}))
-    #         res = await session.execute(query)
-    #         if res:
-    #             result = res.unique().scalars().all()
-    #             return result
-    #         return None
+    @staticmethod
+    async def create_book(
+        session: AsyncSession,
+        title: str,
+        author: str,
+        genre: str | None = None,
+        description: str | None = None,
+    ):
+        book = Book(
+            title=title,
+            author=author,
+            genre=genre,
+            description=description,
+        )
+
+        session.add(book)
+        await session.commit()
+        return book
+
+    @staticmethod
+    async def update_user(session: AsyncSession, tg_id: int, **kwargs):
+
+        stmt = select(User).where(User.tg_id == tg_id).options(selectinload(User.books))
+        user = await session.scalar(stmt)
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+        await session.refresh(user)
+        await session.commit()
+
+    @staticmethod
+    async def select_user_wish_list(session: AsyncSession, tg_id: int):
+        stmt = (
+            select(User.wish_list)
+            .where(User.tg_id == tg_id)
+            .options(selectinload(User.wish_list))
+        )
+        res: Result = await session.execute(stmt)
+        wish_list = res.scalars().all()
+        return wish_list
+
     #
     # @staticmethod
     # async def update_reader(reader_id: int, **kwargs):
@@ -68,18 +85,7 @@ class AsyncOrm:
     #         await session.refresh(reader)
     #         await session.commit()
     #
-    # @staticmethod
-    # async def insert_book(reader_id: int, book_info: object):
-    #     async with async_session_factory() as session:
-    #         book = Book(
-    #             name=book_info.title,
-    #             author=book_info.author,
-    #             description=book_info.description,
-    #             genre=book_info.categories,
-    #             reader_id=reader_id,
-    #         )
-    #         session.add(book)
-    #         await session.commit()
+
     #
     # @staticmethod
     # async def insert_books(reader_id: int, book_list: list):
@@ -96,29 +102,20 @@ class AsyncOrm:
     #         session.add_all(books)
     #         await session.commit()
     #
-    # @staticmethod
-    # async def select_books(user_id: int):
-    #     # Задаем удонобное имя переменной для работы с ORM
-    #     b = aliased(Book)
-    #     async with async_session_factory() as session:
-    #         query = (
-    #             select(b.name)
-    #             .select_from(b)
-    #             .filter(
-    #                 b.reader_id == user_id,
-    #             )
-    #         )
-    #         print(query.compile(compile_kwargs={"literal_binds": True}))
-    #         res = await session.execute(query)
-    #         result = res.all()
-    #         # Извлечение имен книг из результатов запроса
-    #         book_names = [book.name for book in result]
-    #         print(book_names)
-    #         return book_names
+    @staticmethod
+    async def select_books(session: AsyncSession):
+
+        stmt = select(Book).order_by(Book.title)
+
+        res = await session.execute(stmt)
+        result = res.scalars().all()
+
+        return result
+
     @staticmethod
     async def get_average_rating(session, book_id):
 
-        stmt = select(UserBookRating.rating).filter(UserBookRating.book_id == book_id)
+        stmt = select(BookRating.rating).filter(BookRating.book_id == book_id)
         res: Result = await session.execute(stmt)
         ratings = res.scalars().all()
         # Вычисляем средний рейтинг
