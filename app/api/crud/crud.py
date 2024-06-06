@@ -4,7 +4,7 @@ from sqlalchemy.orm import aliased, selectinload
 
 from typing import Sequence
 
-from core.models import User, Book, BookRating
+from core.models import User, Book, UserBookAssociation
 
 
 class AsyncOrm:
@@ -28,12 +28,23 @@ class AsyncOrm:
     @staticmethod
     async def get_user(session: AsyncSession, tg_id: int) -> User | None:
 
-        stmt = (
-            select(User).filter(User.tg_id == tg_id).options(selectinload(User.books))
-        )
+        stmt = select(User).filter(User.tg_id == tg_id)
         res: Result = await session.execute(stmt)
         user: User = res.scalar_one_or_none()
         return user
+
+    @staticmethod
+    async def get_user_books(session: AsyncSession, tg_id: int) -> list[Book]:
+
+        stmt = (
+            select(User.book_details)
+            .filter(User.tg_id == tg_id)
+            .options(
+                selectinload(User.book_details).joinedload(UserBookAssociation.book)
+            )
+        )
+        books = await session.scalars(stmt)
+        return list(books)
 
     @staticmethod
     async def create_book(
@@ -55,12 +66,39 @@ class AsyncOrm:
         return book
 
     @staticmethod
-    async def update_user(session: AsyncSession, tg_id: int, **kwargs):
+    async def update_user(
+        session: AsyncSession,
+        tg_id: int,
+        **kwargs,
+    ):
 
-        stmt = select(User).where(User.tg_id == tg_id).options(selectinload(User.books))
+        stmt = select(User).where(User.tg_id == tg_id)
         user = await session.scalar(stmt)
         for key, value in kwargs.items():
             setattr(user, key, value)
+        await session.refresh(user)
+        await session.commit()
+
+    @staticmethod
+    async def update_user_books(
+        session: AsyncSession,
+        tg_id: int,
+        books: list | None = None,
+        wish_list: list | None = None,
+    ):
+        stmt = (
+            select(User)
+            .options(
+                selectinload(User.books),
+            )
+            .where(User.tg_id == tg_id)
+        )
+        user = await session.scalar(stmt)
+        if books:
+            user.books.append(*books)
+        if wish_list:
+            user.wish_list.append(*wish_list)
+
         await session.refresh(user)
         await session.commit()
 

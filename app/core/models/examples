@@ -1,0 +1,108 @@
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, UniqueConstraint, Table, create_engine, Enum
+from sqlalchemy.orm import relationship, Mapped, mapped_column, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+import enum
+
+Base = declarative_base()
+
+class BookStatus(enum.Enum):
+    TO_READ = "to_read"
+    READ = "read"
+
+class UserBookAssociation(Base):
+    __tablename__ = "user_book_association"
+    __table_args__ = (
+        UniqueConstraint("user_id", "book_id", name="idx_unique_user_book"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    book_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "books.id",
+            ondelete="CASCADE",
+        )
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        )
+    )
+    rating: Mapped[float] = mapped_column(
+        Float,
+        default=0,
+    )
+    status: Mapped[BookStatus] = mapped_column(
+        Enum(BookStatus),
+        default=BookStatus.TO_READ
+    )
+
+    book = relationship("Book", back_populates="user_associations")
+    user = relationship("User", back_populates="book_associations")
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    book_associations = relationship("UserBookAssociation", back_populates="user")
+    books = relationship("Book", secondary="user_book_association", back_populates="users")
+
+class Book(Base):
+    __tablename__ = "books"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    author: Mapped[str] = mapped_column(String, nullable=False)
+
+    user_associations = relationship("UserBookAssociation", back_populates="book")
+    users = relationship("User", secondary="user_book_association", back_populates="books")
+
+    @property
+    def average_rating(self):
+        total_rating = sum(assoc.rating for assoc in self.user_associations if assoc.rating)
+        count = len([assoc.rating for assoc in self.user_associations if assoc.rating])
+        return total_rating / count if count > 0 else None
+
+
+# crud
+# Пример добавления пользователя и книги с рейтингом
+new_user = User(username="john_doe")
+new_book1 = Book(title="Sample Book 1", author="Author Name 1")
+new_book2 = Book(title="Sample Book 2", author="Author Name 2")
+
+association1 = UserBookAssociation(user=new_user, book=new_book1, rating=4.5, status=BookStatus.READ)
+association2 = UserBookAssociation(user=new_user, book=new_book2, status=BookStatus.TO_READ)
+
+session.add(new_user)
+session.add(new_book1)
+session.add(new_book2)
+session.add(association1)
+session.add(association2)
+session.commit()
+
+# Пример получения всех книг пользователя с их статусами и рейтингами с использованием selectinload
+user = session.query(User).options(selectinload(User.book_associations).selectinload(UserBookAssociation.book)).filter_by(username="john_doe").first()
+for association in user.book_associations:
+    print(f"Book: {association.book.title}, Author: {association.book.author}, Status: {association.status}, Rating: {association.rating}")
+
+# Пример изменения статуса и рейтинга книги для пользователя
+association = session.query(UserBookAssociation).filter_by(user_id=user.id, book_id=new_book2.id).first()
+association.status = BookStatus.READ
+association.rating = 5.0
+session.commit()
+
+# Пример получения среднего рейтинга книги с использованием selectinload
+book = session.query(Book).filter_by(title="Sample Book 1").options(selectinload(Book.user_associations)).first()
+print(f"Average Rating: {book.average_rating}")
+
+# Пример получения всех прочитанных книг пользователя с использованием selectinload
+read_books = session.query(UserBookAssociation).options(selectinload(UserBookAssociation.book)).filter_by(user_id=user.id, status=BookStatus.READ).all()
+for assoc in read_books:
+    print(f"Read Book: {assoc.book.title}, Rating: {assoc.rating}")
+
+# Пример получения всех книг, которые пользователь хотел бы прочитать с использованием selectinload
+to_read_books = session.query(UserBookAssociation).options(selectinload(UserBookAssociation.book)).filter_by(user_id=user.id, status=BookStatus.TO_READ).all()
+for assoc in to_read_books:
+    print(f"To Read Book: {assoc.book.title}")

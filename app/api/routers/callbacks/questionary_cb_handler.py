@@ -57,7 +57,7 @@ async def form_books(message: Message, state: FSMContext):
     books = list(message.text)
     if len(books) > 1:
         await state.update_data(books=message.text.split(", "))
-        await state.set_state(Form.genres)
+        await state.set_state(Form.genre)
         await message.answer(
             LEXICON["ask_genre"],
             reply_markup=register_profile(
@@ -68,24 +68,28 @@ async def form_books(message: Message, state: FSMContext):
         await message.answer(LEXICON["not_list"])
 
 
-@router.message(Form.genres)
+@router.message(Form.genre)
 async def form_genre(message: Message, state: FSMContext, session):
 
-    await state.update_data(genres=message.text.split(", "))
+    await state.update_data(genre=message.text.split(", "))
     data = await state.get_data()
     await state.clear()
     if not message.from_user.username:
         username = data["username"]
     else:
         username = message.from_user.username
+
+    # await AsyncOrm.update_user(
+    #     session=session,
+    #     tg_id=message.from_user.id,
+    #     username=username,
+    #     favourite_genre=data["genre"],
+    # )
     await AsyncOrm.update_user(
         session=session,
         tg_id=message.from_user.id,
-        username=username,
         books=data["books"],
-        favourite_genres=data["genres"],
     )
-
     await message.answer_photo(
         photo=FSInputFile(path=image_path),
         caption=LEXICON["success"],

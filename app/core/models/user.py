@@ -2,10 +2,11 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import BigInteger, String
 from typing import TYPE_CHECKING, List
 
+
 from .base import Base
-from .association_tables import user_wishlist_table, user_books_table
 
 if TYPE_CHECKING:
+    from .user_book_association import UserBookAssociation
     from .book import Book
 
 
@@ -19,16 +20,15 @@ class User(Base):
         unique=True,
         default=str(tg_id),
     )
-    favourite_genres: Mapped[List[str]] = mapped_column(String(25), nullable=True)
+    favourite_genre: Mapped[str] = mapped_column(String(25), nullable=True)
 
-    books: Mapped[List["Book"]] = relationship(
-        secondary=user_books_table,
-        back_populates="readers",
+    book_details: Mapped[List["UserBookAssociation"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
-    wish_list: Mapped[List["Book"]] = relationship(
-        secondary=user_wishlist_table,
-        back_populates="wishers",
-    )
+    # books: Mapped[List["Book"]] = relationship(
+    #     secondary="user_book_association", back_populates="users"
+    # )
 
     def __str__(self):
         return f"User(id={self.id!r}, full_name={self.full_name!r})"
