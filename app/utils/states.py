@@ -4,5 +4,5 @@ from aiogram.fsm.state import StatesGroup, State
 class Form(StatesGroup):
     username = State()
     books = State()
-    genres = State()
+    genre = State()
 
