@@ -41,16 +41,15 @@ class UserBookAssociation(Base):
     rating: Mapped[float] = mapped_column(
         Float,
         default=0,
+        server_default="0",
     )
     status: Mapped[Enum] = mapped_column(
         default=BookStatus.TO_READ,
     )
 
     book: Mapped["Book"] = relationship(
-        "Book",
-        back_populates="user_details",
+        back_populates="users_details",
     )
     user: Mapped["User"] = relationship(
-        "User",
-        back_populates="book_details",
+        back_populates="books_details",
     )

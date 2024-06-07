@@ -7,10 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
-from .association_tables import user_books_table, user_wishlist_table
 
 if TYPE_CHECKING:
-    from .user import User
     from .user_book_association import UserBookAssociation
 
 
@@ -22,7 +20,7 @@ class Book(Base):
     genre: Mapped[str] = mapped_column(String(50), nullable=True)
     description: Mapped[str] = mapped_column(Text(), nullable=True)
 
-    user_details: Mapped[List["UserBookAssociation"]] = relationship(
+    users_details: Mapped[List["UserBookAssociation"]] = relationship(
         back_populates="book",
         cascade="all, delete-orphan",
     )

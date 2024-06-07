@@ -1,13 +1,12 @@
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import BigInteger, String
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 
 from .base import Base
 
 if TYPE_CHECKING:
     from .user_book_association import UserBookAssociation
-    from .book import Book
 
 
 class User(Base):
@@ -22,7 +21,7 @@ class User(Base):
     )
     favourite_genre: Mapped[str] = mapped_column(String(25), nullable=True)
 
-    book_details: Mapped[List["UserBookAssociation"]] = relationship(
+    books_details: Mapped[list["UserBookAssociation"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )

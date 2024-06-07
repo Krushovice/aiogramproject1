@@ -4,6 +4,7 @@ __all__ = (
     "Base",
     "User",
     "Book",
+    "BookStatus",
     "UserBookAssociation",
     "UserRead",
     "BookRead",
@@ -14,7 +15,7 @@ __all__ = (
 
 from .config import settings
 from .models.db_helper import db_helper
-from .models import User, Book, Base, UserBookAssociation
+from .models import User, Book, Base, UserBookAssociation, BookStatus
 from .middlewares.session_middleware import DataBaseSession
 
 from .schemas.user_schemas import (
