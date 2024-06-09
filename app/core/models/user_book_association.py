@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
-from sqlalchemy import Float, ForeignKey, UniqueConstraint
+from sqlalchemy import Float, ForeignKey, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from enum import Enum
@@ -10,10 +10,12 @@ if TYPE_CHECKING:
     from .user import User
     from .book import Book
 
+Status = Literal["to_read", "read"]
+
 
 class BookStatus(Enum):
-    TO_READ = "to_read"
-    READ = "read"
+    TO_READ: str = "to_read"
+    READ: str = "read"
 
 
 class UserBookAssociation(Base):
@@ -43,9 +45,7 @@ class UserBookAssociation(Base):
         default=0,
         server_default="0",
     )
-    status: Mapped[Enum] = mapped_column(
-        default=BookStatus.TO_READ,
-    )
+    status: Mapped[Status]
 
     book: Mapped["Book"] = relationship(
         back_populates="users_details",

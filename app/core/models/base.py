@@ -1,3 +1,7 @@
+import enum
+import typing
+
+import sqlalchemy
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -8,6 +12,10 @@ from sqlalchemy.orm import (
 
 class Base(DeclarativeBase):
     __abstract__ = True
+    type_annotation_map = {
+        enum.Enum: sqlalchemy.Enum(enum.Enum),
+        typing.Literal: sqlalchemy.Enum(enum.Enum),
+    }
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
