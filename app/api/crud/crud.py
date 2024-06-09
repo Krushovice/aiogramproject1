@@ -34,17 +34,17 @@ class AsyncOrm:
         return user
 
     @staticmethod
-    async def get_user_books(session: AsyncSession, tg_id: int) -> list[Book]:
+    async def get_user_books(session: AsyncSession, tg_id: int):
 
         stmt = (
-            select(User.book_details)
+            select(User)
             .filter(User.tg_id == tg_id)
             .options(
-                selectinload(User.book_details).joinedload(UserBookAssociation.book)
+                selectinload(User.books_details).joinedload(UserBookAssociation.book)
             )
         )
-        books = await session.scalars(stmt)
-        return list(books)
+        user = await session.scalar(stmt)
+        return user.books_details
 
     @staticmethod
     async def create_book(
@@ -80,24 +80,21 @@ class AsyncOrm:
         await session.commit()
 
     @staticmethod
-    async def update_user_books(
+    async def update_user_book(
         session: AsyncSession,
         tg_id: int,
-        books: list | None = None,
-        wish_list: list | None = None,
+        **kwargs,
     ):
         stmt = (
             select(User)
             .options(
-                selectinload(User.books),
+                selectinload(User.books_details).joinedload(UserBookAssociation.book),
             )
             .where(User.tg_id == tg_id)
         )
         user = await session.scalar(stmt)
-        if books:
-            user.books.append(*books)
-        if wish_list:
-            user.wish_list.append(*wish_list)
+        for key, value in kwargs.items():
+            setattr(user.books_details, key, value)
 
         await session.refresh(user)
         await session.commit()
@@ -105,12 +102,16 @@ class AsyncOrm:
     @staticmethod
     async def select_user_wish_list(session: AsyncSession, tg_id: int):
         stmt = (
-            select(User.wish_list)
+            select(User)
             .where(User.tg_id == tg_id)
-            .options(selectinload(User.wish_list))
+            .options(
+                selectinload(User.books_details).joinedload(UserBookAssociation.book)
+            )
+            .where(UserBookAssociation.status == "to_read")
         )
-        res: Result = await session.execute(stmt)
-        wish_list = res.scalars().all()
+
+        user = await session.scalar(stmt)
+        wish_list = user.books_details
         return wish_list
 
     #

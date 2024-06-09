@@ -139,14 +139,10 @@ async def main():
         # await create_books(session=session)
         # await create_user(session)
         # await add_books_to_user(session)
-        user_book_assoc = await get_user_book_assoc(session, tg_id=1234567)
-        for user_detail in user_book_assoc:
-            print(
-                "-",
-                user_detail.book.title,
-                user_detail.book.genre,
-                user_detail.status,
-            )
+        # user_book_assoc = await AsyncOrm.get_user_books(session, tg_id=1234567)
+        wish_list = await AsyncOrm.select_user_wish_list(session, tg_id=1234567)
+        for book_detail in wish_list:
+            print("-", book_detail.book.title)
 
 
 if __name__ == "__main__":
