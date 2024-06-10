@@ -65,54 +65,47 @@ class AsyncOrm:
         await session.commit()
         return book
 
-    @staticmethod
-    async def update_user(
-        session: AsyncSession,
-        tg_id: int,
-        **kwargs,
-    ):
-
-        stmt = select(User).where(User.tg_id == tg_id)
-        user = await session.scalar(stmt)
-        for key, value in kwargs.items():
-            setattr(user, key, value)
-        await session.refresh(user)
-        await session.commit()
+    # @staticmethod
+    # async def update_user(
+    #     session: AsyncSession,
+    #     tg_id: int,
+    #     **kwargs,
+    # ):
+    #
+    #     stmt = select(User).where(User.tg_id == tg_id)
+    #     user = await session.scalar(stmt)
+    #     for key, value in kwargs.items():
+    #         setattr(user, key, value)
+    #     await session.refresh(user)
+    #     await session.commit()
 
     @staticmethod
     async def update_user_book(
         session: AsyncSession,
-        tg_id: int,
+        book_id: int,
         **kwargs,
     ):
-        stmt = (
-            select(User)
-            .options(
-                selectinload(User.books_details).joinedload(UserBookAssociation.book),
-            )
-            .where(User.tg_id == tg_id)
-        )
-        user = await session.scalar(stmt)
+        stmt = select(UserBookAssociation).where(UserBookAssociation.book_id == book_id)
+        assoc = await session.scalar(stmt)
         for key, value in kwargs.items():
-            setattr(user.books_details, key, value)
-
-        await session.refresh(user)
+            setattr(assoc, key, value)
         await session.commit()
+        return assoc
 
     @staticmethod
-    async def select_user_wish_list(session: AsyncSession, tg_id: int):
+    async def select_user_wish_list(session: AsyncSession, user_id: int):
         stmt = (
-            select(User)
-            .where(User.tg_id == tg_id)
-            .options(
-                selectinload(User.books_details).joinedload(UserBookAssociation.book)
+            select(UserBookAssociation)
+            .where(
+                UserBookAssociation.user_id == user_id,
+                UserBookAssociation.status == "to_read",
             )
-            .where(UserBookAssociation.status == "to_read")
+            .options(selectinload(UserBookAssociation.book))
         )
 
-        user = await session.scalar(stmt)
-        wish_list = user.books_details
-        return wish_list
+        user_books_details = await session.scalars(stmt)
+
+        return user_books_details
 
     #
     # @staticmethod
@@ -141,24 +134,24 @@ class AsyncOrm:
     #         session.add_all(books)
     #         await session.commit()
     #
-    @staticmethod
-    async def select_books(session: AsyncSession):
-
-        stmt = select(Book).order_by(Book.title)
-
-        res = await session.execute(stmt)
-        result = res.scalars().all()
-
-        return result
-
-    @staticmethod
-    async def get_average_rating(session, book_id):
-
-        stmt = select(BookRating.rating).filter(BookRating.book_id == book_id)
-        res: Result = await session.execute(stmt)
-        ratings = res.scalars().all()
-        # Вычисляем средний рейтинг
-        total_rating = sum(r for r in ratings)
-        average_rating = total_rating / len(ratings) if ratings else 0
-
-        return average_rating
+    # @staticmethod
+    # async def select_books(session: AsyncSession):
+    #
+    #     stmt = select(Book).order_by(Book.title)
+    #
+    #     res = await session.execute(stmt)
+    #     result = res.scalars().all()
+    #
+    #     return result
+    #
+    # @staticmethod
+    # async def get_average_rating(session, book_id):
+    #
+    #     stmt = select(BookRating.rating).filter(BookRating.book_id == book_id)
+    #     res: Result = await session.execute(stmt)
+    #     ratings = res.scalars().all()
+    #     # Вычисляем средний рейтинг
+    #     total_rating = sum(r for r in ratings)
+    #     average_rating = total_rating / len(ratings) if ratings else 0
+    #
+    #     return average_rating
