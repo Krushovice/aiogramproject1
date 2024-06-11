@@ -19,15 +19,12 @@ class User(Base):
         unique=True,
         default=str(tg_id),
     )
-    favourite_genre: Mapped[str] = mapped_column(String(25), nullable=True)
+    favorite_genre: Mapped[str] = mapped_column(String(25), nullable=True)
 
     books_details: Mapped[list["UserBookAssociation"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    # books: Mapped[List["Book"]] = relationship(
-    #     secondary="user_book_association", back_populates="users"
-    # )
 
     def __str__(self):
         return f"User(id={self.id!r}, full_name={self.full_name!r})"

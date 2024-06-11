@@ -24,9 +24,6 @@ class Book(Base):
         back_populates="book",
         cascade="all, delete-orphan",
     )
-    # users: Mapped[List["User"]] = relationship(
-    #     secondary="user_book_association", back_populates="books"
-    # )
 
     def __str__(self):
         return f"Book(title={self.title!r}, author={self.author!r})"

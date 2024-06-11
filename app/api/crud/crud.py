@@ -107,6 +107,21 @@ class AsyncOrm:
 
         return user_books_details
 
+    @staticmethod
+    async def select_user_favorite_book(session: AsyncSession, user_id: int):
+        stmt = (
+            select(UserBookAssociation)
+            .where(
+                UserBookAssociation.user_id == user_id,
+                UserBookAssociation.status == "read",
+            )
+            .options(selectinload(UserBookAssociation.book))
+        )
+
+        user_books_details = await session.scalars(stmt)
+
+        return user_books_details
+
     #
     # @staticmethod
     # async def update_reader(reader_id: int, **kwargs):

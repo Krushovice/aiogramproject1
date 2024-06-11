@@ -8,7 +8,7 @@ from core import Base, db_helper
 from app.api.crud.crud import AsyncOrm
 from core import User
 from core import UserBookAssociation
-from core import BookStatus
+from utils import get_favourite_book
 
 
 async def create_tables():
@@ -143,15 +143,9 @@ async def main():
         # wish_list = await AsyncOrm.select_user_wish_list(session, user_id=1)
         # for book_detail in wish_list:
         #     print("-", book_detail.book.title)
-        user = await AsyncOrm.get_user_books(session, tg_id=1234567)
-        book_id = None
-        for book_detail in user:
-            if book_detail.book.title == "Улыбка":
-                book_id = book_detail.book.id
-        book = await AsyncOrm.update_user_book(
-            session, book_id=book_id, rating=5, status="read"
-        )
-        print(book.rating, book.status)
+
+        book = await get_favourite_book(session, 1)
+        print(book)
 
 
 if __name__ == "__main__":

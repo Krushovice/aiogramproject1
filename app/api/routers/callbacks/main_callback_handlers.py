@@ -9,9 +9,9 @@ from api.markups import (
     build_account_kb,
     build_main_kb,
 )
-from core import DataBaseSession, db_helper
+
 from api.crud import AsyncOrm
-from utils import LEXICON, ai_helper, get_most_common_genre
+from utils import LEXICON, ai_helper, get_favorite_book
 
 router = Router(name=__name__)
 
@@ -23,21 +23,14 @@ async def handle_profile_button(call: CallbackQuery, session: AsyncSession):
         session=session,
         tg_id=call.from_user.id,
     )
-    # if user.books:
-    #
-    #     count_books = len(user.books)
-    #     favorite_genre = get_most_common_genre(user.books)
-    # else:
-    count_books = 0
-    favorite_genre = ""
-    print("Упс")
+    favorite_book = await get_favorite_book(session=session, user_id=user.id)
     # Выводим карточку читателя
     text = (
         "<b>Карточка читателя</b> 🪪\n\n"
         f"Никнейм: {user.username if user.username else user.full_name}\n"
-        f"Прочитано : {count_books}\n"
-        f"Любимый жанр: {favorite_genre}\n"
-        f"Любимая книга: "
+        f"Прочитано : 0\n"
+        f"Любимый жанр: {user.favorite_genre}\n"
+        f"Любимая книга: {favorite_book.title}\n"
     )
     await call.message.edit_caption(
         caption=text,
