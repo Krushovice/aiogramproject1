@@ -8,7 +8,6 @@ from core import Base, db_helper
 from app.api.crud.crud import AsyncOrm
 from core import User
 from core import UserBookAssociation
-from utils import get_favourite_book
 
 
 async def create_tables():
@@ -54,32 +53,32 @@ async def get_user_book_assoc(session: AsyncSession, tg_id: int):
     return user.books_details
 
 
-async def add_books_to_user(session: AsyncSession):
-    user = await get_user_book_assoc(session=session, tg_id=1234567)
-    # Проверка, существует ли пользователь
-    if user:
-        # Создание ассоциаций и добавление их к пользователю
-
-        user.books_details.append(
-            UserBookAssociation(
-                book=new_book1,
-                rating=4,
-                status="read",
-            )
-        )
-        user.books_details.append(
-            UserBookAssociation(
-                book=new_book2,
-                status="to_read",
-            )
-        )
-
-        await session.commit()
-
-        print("Books successfully added to user's list.")
-
-    else:
-        print("User not found.")
+# async def add_books_to_user(session: AsyncSession):
+#     user = await get_user_book_assoc(session=session, tg_id=1234567)
+#     # Проверка, существует ли пользователь
+#     if user:
+#         # Создание ассоциаций и добавление их к пользователю
+#
+#         user.books_details.append(
+#             UserBookAssociation(
+#                 book=new_book1,
+#                 rating=4,
+#                 status="read",
+#             )
+#         )
+#         user.books_details.append(
+#             UserBookAssociation(
+#                 book=new_book2,
+#                 status="to_read",
+#             )
+#         )
+#
+#         await session.commit()
+#
+#         print("Books successfully added to user's list.")
+#
+#     else:
+#         print("User not found.")
 
 
 async def create_books(session: AsyncSession):

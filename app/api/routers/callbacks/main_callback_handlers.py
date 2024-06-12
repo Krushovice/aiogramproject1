@@ -30,8 +30,8 @@ async def handle_profile_button(call: CallbackQuery, session: AsyncSession):
         "<b>Карточка читателя</b> 🪪\n\n"
         f"Никнейм: {user.username if user.username else user.full_name}\n"
         f"Прочитано : 0\n"
-        f"Любимый жанр: {user.favorite_genre}\n"
-        f"Любимая книга: {favorite_book.title}\n"
+        f"Любимый жанр: {user.favorite_genre if user.favorite_genre else ""}\n"
+        f"Любимая книга: {favorite_book.title if favorite_book else ""}\n"
     )
     await call.message.edit_caption(
         caption=text,
