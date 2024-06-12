@@ -5,6 +5,8 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
+from .main_kb import MenuCbData, MenuActions
+
 
 class ProfileActions(IntEnum):
     register = auto()
@@ -14,10 +16,12 @@ class ProfileActions(IntEnum):
     top = auto()
     back_to_profile = auto()
     back_to_root = auto()
+    read = auto()
 
 
 class ProfileCbData(CallbackData, prefix="account"):
     action: ProfileActions
+    book_title: str | None = None
 
 
 def build_account_kb(
@@ -64,6 +68,28 @@ def build_book_card_kb() -> InlineKeyboardMarkup:
         callback_data=ProfileCbData(action=ProfileActions.back_to_profile).pack(),
     )
     builder.adjust(1)
+    return builder.as_markup()
+
+
+def build_book_interaction_kb(book_cb_data) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Читаем? ✍️",
+        callback_data=ProfileCbData(
+            action=ProfileActions.read,
+            book_title=book_cb_data,
+        ).pack(),
+    )
+    builder.button(
+        text="Что-то другое 🔄",
+        callback_data=MenuCbData(action=MenuActions.advice).pack(),
+    )
+    builder.button(
+        text="Назад 🔙",
+        callback_data=ProfileCbData(action=ProfileActions.back_to_root).pack(),
+    )
+    builder.adjust(1)
+
     return builder.as_markup()
 
 
