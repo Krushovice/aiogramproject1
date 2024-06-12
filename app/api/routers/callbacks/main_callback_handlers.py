@@ -8,10 +8,11 @@ from api.markups import (
     MenuActions,
     build_account_kb,
     build_main_kb,
+    build_book_interaction_kb,
 )
 
 from api.crud import AsyncOrm
-from utils import LEXICON, ai_helper, get_favorite_book
+from utils import LEXICON, ai_helper, get_favorite_book, parse_book_info
 
 router = Router(name=__name__)
 
@@ -39,15 +40,34 @@ async def handle_profile_button(call: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advice))
-async def handle_advice_button(call: CallbackQuery):
+async def handle_advice_button(call: CallbackQuery, session: AsyncSession):
     await call.answer()
-    message = ""
+    user = await AsyncOrm.get_user(
+        session=session,
+        tg_id=call.from_user.id,
+    )
+    user_book_assoc = await AsyncOrm.select_user_read_books(
+        session=session, user_id=user.id
+    )
+    books = set()
+    for user_book_detail in user_book_assoc:
+        books.add(user_book_detail.book.title)
+    message = (
+        f'Порекомендуй одну книгу, исходя из списка прочитанного{",".join(books)}.'
+        "Ответ должен быть интересным, с пояснением."
+        'Название книги должно быть без ковычек после слова "рекомендую:".'
+        "Предложение должно заканчиваться точкой"
+        "Книга не должна присутствовать в books и должна быть схожей по жанру"
+    )
+
     try:
         token = ai_helper.create_token()
         res = ai_helper.send_prompt(token=token, message=message)
+        print(res)
+        book_title = parse_book_info(res)
         await call.message.edit_caption(
             caption=res,
-            reply_markup=build_main_kb(),
+            reply_markup=build_book_interaction_kb(book_cb_data=book_title),
         )
 
     except requests.exceptions.RequestException as e:
