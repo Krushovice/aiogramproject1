@@ -9,7 +9,7 @@ from api.crud import AsyncOrm
 
 
 async def get_favorite_book(session: AsyncSession, user_id) -> str:
-    user_book_details = await AsyncOrm.select_user_favorite_book(
+    user_book_details = await AsyncOrm.select_user_read_books(
         session=session,
         user_id=user_id,
     )
@@ -21,3 +21,9 @@ async def get_favorite_book(session: AsyncSession, user_id) -> str:
             favourite_book = f"{user_book_detail.book.author}, {user_book_detail.book.title}"
     return favourite_book
 
+
+def parse_book_info(text: str) -> str:
+    left_index = text.index('"') + 1
+    right_index = text.rindex('"')
+    title = text[left_index:right_index]
+    return title

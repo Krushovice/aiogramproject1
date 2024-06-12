@@ -13,7 +13,7 @@ def setup_logger(module_name):
     if not logger.handlers:
         # Добавляем обработчик для записи в файл
         file_handler = RotatingFileHandler(
-            f"logs/{filename}.log",
+            f"app/logs/{filename}.log",
             maxBytes=100000,
             backupCount=5,
         )
