@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery
 
 
 from aiogram.fsm.context import FSMContext
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.crud import AsyncOrm
 
@@ -16,6 +17,7 @@ from api.markups import (
 from utils import Form
 from utils import choice_items
 from utils import LEXICON
+from utils import make_book_data_easy_to_record
 
 image_path = "app/utils/images/books.jpg"
 
@@ -69,7 +71,7 @@ async def form_books(message: Message, state: FSMContext):
 
 
 @router.message(Form.genre)
-async def form_genre(message: Message, state: FSMContext, session):
+async def form_genre(message: Message, state: FSMContext, session: AsyncSession):
 
     await state.update_data(genre=message.text.split(", "))
     data = await state.get_data()
@@ -78,18 +80,20 @@ async def form_genre(message: Message, state: FSMContext, session):
         username = data["username"]
     else:
         username = message.from_user.username
+    books = make_book_data_easy_to_record(books=data["books"])
+    await AsyncOrm.add_read_books_to_user(
+        session=session,
+        tg_id=message.from_user.id,
+        books=books,
+    )
 
-    # await AsyncOrm.update_user(
-    #     session=session,
-    #     tg_id=message.from_user.id,
-    #     username=username,
-    #     favourite_genre=data["genre"],
-    # )
     await AsyncOrm.update_user(
         session=session,
         tg_id=message.from_user.id,
-        books=data["books"],
+        username=username,
+        favourite_genre=data["genre"],
     )
+
     await message.answer_photo(
         photo=FSInputFile(path=image_path),
         caption=LEXICON["success"],

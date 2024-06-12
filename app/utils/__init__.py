@@ -5,6 +5,7 @@ __all__ = (
     "choice_items",
     "ai_helper",
     "get_favorite_book",
+    "make_book_data_easy_to_record",
 )
 
 from .logging import setup_logger
@@ -12,4 +13,8 @@ from .states import Form
 from .lexicon import LEXICON_RU as LEXICON
 from .choice_helper import choice_items
 from .requests import ai_helper
-from .data_analitic import get_favorite_book, parse_book_info
+from .data_analitic import (
+    get_favorite_book,
+    parse_book_info,
+    make_book_data_easy_to_record,
+)

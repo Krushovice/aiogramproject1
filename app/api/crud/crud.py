@@ -64,24 +64,25 @@ class AsyncOrm:
         await session.commit()
         return book
 
-    # @staticmethod
-    # async def update_user(
-    #     session: AsyncSession,
-    #     tg_id: int,
-    #     **kwargs,
-    # ):
-    #
-    #     stmt = select(User).where(User.tg_id == tg_id)
-    #     user = await session.scalar(stmt)
-    #     for key, value in kwargs.items():
-    #         setattr(user, key, value)
-    #     await session.refresh(user)
-    #     await session.commit()
+    @staticmethod
+    async def update_user(
+        session: AsyncSession,
+        tg_id: int,
+        **kwargs,
+    ):
+
+        stmt = select(User).where(User.tg_id == tg_id)
+        user = await session.scalar(stmt)
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+        await session.refresh(user)
+        await session.commit()
+
     @staticmethod
     async def add_read_books_to_user(
         session: AsyncSession,
         tg_id: int,
-        books: list,
+        books: dict,
     ) -> None:
         stmt = (
             select(User)
@@ -91,11 +92,13 @@ class AsyncOrm:
             )
         )
         user = await session.scalar(stmt)
-        for book in books:
+        for _ in range(len(books)):
             user.books_details.append(
                 UserBookAssociation(
-                    book=Book(),  # здесь должна быть информация о книге из списка books
-                    rating=4,
+                    book=Book(
+                        title=books["title"],
+                        author=books["author"],
+                    ),
                     status="read",
                 )
             )
