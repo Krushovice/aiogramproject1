@@ -1,8 +1,7 @@
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased, selectinload
+from sqlalchemy.orm import selectinload
 
-from typing import Sequence
 
 from core.models import User, Book, UserBookAssociation
 
@@ -34,7 +33,7 @@ class AsyncOrm:
         return user
 
     @staticmethod
-    async def get_user_books(session: AsyncSession, tg_id: int):
+    async def get_user_book_assoc(session: AsyncSession, tg_id: int):
 
         stmt = (
             select(User)
@@ -78,6 +77,56 @@ class AsyncOrm:
     #         setattr(user, key, value)
     #     await session.refresh(user)
     #     await session.commit()
+    @staticmethod
+    async def add_read_books_to_user(
+        session: AsyncSession,
+        tg_id: int,
+        books: list,
+    ) -> None:
+        stmt = (
+            select(User)
+            .filter(User.tg_id == tg_id)
+            .options(
+                selectinload(User.books_details).joinedload(UserBookAssociation.book)
+            )
+        )
+        user = await session.scalar(stmt)
+        for book in books:
+            user.books_details.append(
+                UserBookAssociation(
+                    book=Book(),  # здесь должна быть информация о книге из списка books
+                    rating=4,
+                    status="read",
+                )
+            )
+
+        await session.commit()
+
+    @staticmethod
+    async def add_book_to_read(
+        session: AsyncSession,
+        tg_id: int,
+        book_title: str,
+        book_author: str,
+    ) -> None:
+        stmt = (
+            select(User)
+            .filter(User.tg_id == tg_id)
+            .options(
+                selectinload(User.books_details).joinedload(UserBookAssociation.book)
+            )
+        )
+        user = await session.scalar(stmt)
+        user.books_details.append(
+            UserBookAssociation(
+                book=Book(
+                    title=book_title,
+                    author=book_author,
+                ),
+                status="to_read",
+            )
+        )
+        await session.commit()
 
     @staticmethod
     async def update_user_book(
@@ -108,7 +157,7 @@ class AsyncOrm:
         return user_books_details
 
     @staticmethod
-    async def select_user_favorite_book(session: AsyncSession, user_id: int):
+    async def select_user_read_books(session: AsyncSession, user_id: int):
         stmt = (
             select(UserBookAssociation)
             .where(
