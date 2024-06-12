@@ -9,15 +9,17 @@ from api.routers import router as main_router
 from core.config import settings
 from core import Base, db_helper, DataBaseSession
 
+from utils import setup_logger
+
 
 async def create_tables():
     async with db_helper.engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
 
 async def main() -> None:
-    # logger = setup_logger(__name__)
+    logger = setup_logger(__name__)
     try:
 
         dp = Dispatcher()
@@ -38,7 +40,7 @@ async def main() -> None:
         await dp.start_polling(bot)
 
     except Exception as e:
-        print(f"Ошибка при запуске основного скрипта: {e}")
+        logger.error(f"Ошибка при запуске основного скрипта: {e}")
 
 
 if __name__ == "__main__":
