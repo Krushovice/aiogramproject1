@@ -9,6 +9,7 @@ __all__ = (
     "register_profile",
     "root_kb",
     "build_book_interaction_kb",
+    "yes_no_kb",
 )
 
 
@@ -26,4 +27,5 @@ from .account_kb import (
     root_kb,
     register_profile,
     build_book_interaction_kb,
+    yes_no_kb,
 )

@@ -5,4 +5,5 @@ class Form(StatesGroup):
     username = State()
     books = State()
     genre = State()
+    survey = State()
 

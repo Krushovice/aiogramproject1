@@ -2,7 +2,7 @@ from enum import IntEnum, auto
 
 
 from aiogram.filters.callback_data import CallbackData
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from .main_kb import MenuCbData, MenuActions
@@ -120,3 +120,11 @@ def register_profile(text: str | list):
             resize_keyboard=True,
             one_time_keyboard=True,
         )
+
+
+def yes_no_kb() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Да")
+    builder.button(text="Нет")
+    # builder.adjust(1)
+    return builder.as_markup(resize_keyboard=True)

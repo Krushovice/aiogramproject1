@@ -1,5 +1,5 @@
 from aiogram.types import Message, FSInputFile
-from aiogram import Router, F
+from aiogram import Router, F, types
 from aiogram.types import CallbackQuery
 
 
@@ -13,6 +13,7 @@ from api.markups import (
     ProfileCbData,
     build_book_card_kb,
     register_profile,
+    yes_no_kb,
 )
 from utils import Form
 from utils import choice_items
@@ -38,42 +39,81 @@ async def register_user_handler(
     await state.set_state(Form.username)
     await call.message.answer(
         text=LEXICON["ask_username"],
-        reply_markup=register_profile(call.from_user.username),
+        reply_markup=types.ReplyKeyboardRemove(),
     )
 
 
 @router.message(Form.username)
 async def form_username(message: Message, state: FSMContext):
     await state.update_data(username=message.text)
-    await state.set_state(Form.books)
+    await state.set_state(Form.genre)
     await message.answer(
-        LEXICON["ask_books"],
+        LEXICON["ask_genre"],
         reply_markup=register_profile(
-            choice_items(LEXICON["books"]),
+            choice_items(LEXICON["genres"]),
         ),
     )
 
 
-@router.message(Form.books)
-async def form_books(message: Message, state: FSMContext):
-    books = list(message.text)
-    if len(books) > 1:
-        await state.update_data(books=message.text.split(", "))
-        await state.set_state(Form.genre)
-        await message.answer(
-            LEXICON["ask_genre"],
-            reply_markup=register_profile(
-                choice_items(LEXICON["genres"]),
-            ),
-        )
-    else:
-        await message.answer(LEXICON["not_list"])
-
-
 @router.message(Form.genre)
-async def form_genre(message: Message, state: FSMContext, session: AsyncSession):
+async def form_genre(message: Message, state: FSMContext):
 
-    await state.update_data(genre=message.text.split(", "))
+    await state.update_data(genre=message.text)
+    await state.set_state(Form.books)
+    await message.answer(
+        LEXICON["ask_book"],
+        reply_markup=types.ReplyKeyboardRemove(),
+    ),
+
+
+@router.message(Form.books)
+async def form_books(
+    message: Message,
+    state: FSMContext,
+):
+    text = message.text.split(",")
+    book = {
+        "author": text[0],
+        "title": text[1],
+    }
+    data = await state.get_data()
+    if not data.get("books", None):
+        await state.update_data(books=[book])
+    else:
+        books = data["books"]
+        books.append(book)
+        await state.update_data(books=books)
+
+    await state.set_state(Form.survey)
+    await message.answer(
+        text="Добавим еще одну книгу?",
+        reply_markup=yes_no_kb(),
+    ),
+
+
+@router.message(Form.survey, F.text == "Да")
+async def handle_add_books_yes(
+    message: Message,
+    state: FSMContext,
+):
+    await state.set_state(Form.books)
+    text = (
+        "Отлично! Давай добавим еще одну книгу в список."
+        "Отправьте автора и название через запятую"
+    )
+    await message.answer(
+        text=text,
+        reply_markup=types.ReplyKeyboardRemove(),
+    ),
+
+
+@router.message(Form.survey, F.text == "Нет")
+async def handle_add_books_no(
+    message: Message,
+    state: FSMContext,
+    session: AsyncSession,
+):
+
     data = await state.get_data()
     await state.clear()
     if not message.from_user.username:
