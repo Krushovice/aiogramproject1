@@ -82,7 +82,7 @@ class AsyncOrm:
     async def add_read_books_to_user(
         session: AsyncSession,
         tg_id: int,
-        books: dict,
+        books: list,
     ) -> None:
         stmt = (
             select(User)
@@ -92,12 +92,12 @@ class AsyncOrm:
             )
         )
         user = await session.scalar(stmt)
-        for _ in range(len(books)):
+        for book in books:
             user.books_details.append(
                 UserBookAssociation(
                     book=Book(
-                        title=books["title"],
-                        author=books["author"],
+                        title=book["title"],
+                        author=book["author"],
                     ),
                     status="read",
                 )

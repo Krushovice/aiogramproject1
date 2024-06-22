@@ -120,7 +120,8 @@ async def handle_add_books_no(
         username = data["username"]
     else:
         username = message.from_user.username
-    books = make_book_data_easy_to_record(books=data["books"])
+    books = data["books"]
+
     await AsyncOrm.add_read_books_to_user(
         session=session,
         tg_id=message.from_user.id,
