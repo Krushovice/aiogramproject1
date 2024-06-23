@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery
 
 
 from aiogram.fsm.context import FSMContext
+from aiogram.utils import markdown
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.crud import AsyncOrm
@@ -18,7 +19,7 @@ from api.markups import (
 from utils import Form
 from utils import choice_items
 from utils import LEXICON
-from utils import make_book_data_easy_to_record
+
 
 image_path = "app/utils/images/books.jpg"
 
@@ -71,24 +72,30 @@ async def form_books(
     message: Message,
     state: FSMContext,
 ):
-    text = message.text.split(",")
-    book = {
-        "author": text[0],
-        "title": text[1],
-    }
-    data = await state.get_data()
-    if not data.get("books", None):
-        await state.update_data(books=[book])
-    else:
-        books = data["books"]
-        books.append(book)
-        await state.update_data(books=books)
+    book_info = message.text.split(",")
+    if len(book_info) > 1:
+        book = {
+            "author": book_info[0],
+            "title": book_info[1],
+        }
+        data = await state.get_data()
+        if not data.get("books", None):
+            await state.update_data(books=[book])
+        else:
+            books = data["books"]
+            books.append(book)
+            await state.update_data(books=books)
 
-    await state.set_state(Form.survey)
-    await message.answer(
-        text="Добавим еще одну книгу?",
-        reply_markup=yes_no_kb(),
-    ),
+        await state.set_state(Form.survey)
+        await message.answer(
+            text="Добавим еще одну книгу?",
+            reply_markup=yes_no_kb(),
+        ),
+    else:
+        await message.answer(
+            text="Не понимаю вас.Укажите пожалуйста автора книги и название через запятую",
+            reply_markup=types.ReplyKeyboardRemove(),
+        ),
 
 
 @router.message(Form.survey, F.text == "Да")
@@ -139,4 +146,17 @@ async def handle_add_books_no(
         photo=FSInputFile(path=image_path),
         caption=LEXICON["success"],
         reply_markup=build_book_card_kb(),
+    )
+
+
+@router.message(Form.survey)
+async def handle_survey_could_not_understand(
+    message: Message,
+):
+    await message.answer(
+        text=(
+            "Не понимаю тебя( "
+            f"Пожалуйста, отправь {markdown.hcode('Да')} или {markdown.hcode('Нет')}"
+        ),
+        reply_markup=yes_no_kb(),
     )
