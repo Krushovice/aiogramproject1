@@ -93,7 +93,7 @@ async def form_books(
         ),
     else:
         await message.answer(
-            text="Не понимаю вас.Укажите пожалуйста автора книги и название через запятую",
+            text="Не понимаю вас😢.Укажите пожалуйста автора книги и название через запятую",
             reply_markup=types.ReplyKeyboardRemove(),
         ),
 
@@ -141,10 +141,20 @@ async def handle_add_books_no(
         username=username,
         favourite_genre=data["genre"],
     )
+    survey_results = (
+        "Ваш профиль успешно создан!🤩\n\n"
+        f"Имя пользователя: {markdown.hbold(data["username"])}\n"
+        f"Любимый жанр: {markdown.hbold(data["genre"])}\n"
+        f"Любимые книги: {markdown.hbold(", ".join(book['title'] for book in books))}"
+    )
+    # await message.answer(
+    #     text=survey_results,
+    #     reply_markup=types.ReplyKeyboardRemove(),
+    # )
 
     await message.answer_photo(
         photo=FSInputFile(path=image_path),
-        caption=LEXICON["success"],
+        caption=survey_results,
         reply_markup=build_book_card_kb(),
     )
 
