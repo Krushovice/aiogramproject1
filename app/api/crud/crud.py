@@ -48,16 +48,10 @@ class AsyncOrm:
     @staticmethod
     async def create_book(
         session: AsyncSession,
-        title: str,
-        author: str,
-        genre: str | None = None,
-        description: str | None = None,
+        **kwargs,
     ):
         book = Book(
-            title=title,
-            author=author,
-            genre=genre,
-            description=description,
+            **kwargs,
         )
 
         session.add(book)
