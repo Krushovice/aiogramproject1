@@ -1,5 +1,5 @@
 import pytest
-from app.core import User
+from core import User
 
 
 @pytest.fixture

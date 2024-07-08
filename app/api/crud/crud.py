@@ -48,11 +48,8 @@ class AsyncOrm:
     @staticmethod
     async def create_book(
         session: AsyncSession,
-        **kwargs,
+        book,
     ):
-        book = Book(
-            **kwargs,
-        )
 
         session.add(book)
         await session.commit()
@@ -168,7 +165,13 @@ class AsyncOrm:
 
         return user_books_details
 
-    #
+    @staticmethod
+    async def get_books(session: AsyncSession):
+
+        stmt = select(Book)
+        books = await session.scalars(stmt)
+        return books
+
     # @staticmethod
     # async def update_reader(reader_id: int, **kwargs):
     #     async with async_session_factory() as session:
